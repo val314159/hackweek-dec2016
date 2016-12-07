@@ -139,6 +139,8 @@ def run_inference_on_image(image):
   Returns:
     Nothing
   """
+  global predictions
+
   if not tf.gfile.Exists(image):
     tf.logging.fatal('File does not exist %s', image)
   image_data = tf.gfile.FastGFile(image, 'rb').read()
@@ -161,6 +163,7 @@ def run_inference_on_image(image):
     predictions = np.squeeze(predictions)
 
     # Creates node ID --> English string lookup.
+    global node_lookup
     node_lookup = NodeLookup()
 
     top_k = predictions.argsort()[-FLAGS.num_top_predictions:][::-1]
@@ -168,7 +171,7 @@ def run_inference_on_image(image):
       human_string = node_lookup.id_to_string(node_id)
       score = predictions[node_id]
       print('%s (score = %.5f)' % (human_string, score))
-
+  return top_k
 
 def maybe_download_and_extract():
   """Download and extract model tar file."""
@@ -190,13 +193,80 @@ def maybe_download_and_extract():
 
 
 def main(_):
+  try:
+    os.mkdir('static')
+  except:
+    pass
   maybe_download_and_extract()
   image = (FLAGS.image_file if FLAGS.image_file else
            os.path.join(FLAGS.model_dir, 'cropped_panda.jpg'))
+  print("OK NOW PRIME ONE")
   run_inference_on_image(image)
+  print("OK NOW PRIME TWO")
+  run_inference_on_image('default7.jpg')
   print("OK NOW SERVE WEB STUFF")
-  import bottle
-  bottle.run(host='',port=80)
+  run(host='',port=80)
+
+
+
+
+
+@route('/')
+def index():
+  return ['''
+<form method="POST" action="/upload" enctype="multipart/form-data">
+    <input type="text" name="name" value="default.jpg" />
+    <input type="file" name="data" accept="video/*;capture=camcorder" />
+</form>
+''']
+
+@route('/static/<path:path>')
+def server_static(path):
+  return static_file(path, root='./static/')
+
+@route('/upload', method='POST')
+def do_upload():
+  name = request.forms.name
+  data = request.files.data
+  if name and data and data.file:
+    pathname = 'static/'+name
+    new_pathname = 'static/'+time.ctime().replace(' ','-')+'.'+name
+    print("SAVING FILE:"+new_pathname)
+    data.save(new_pathname,overwrite=True)
+    filename = data.filename
+    print("WORKING ON PREDICTING")
+    top_k = run_inference_on_image(new_pathname)
+    print("DONE PREDICTING")
+    return """Hello %s! You uploaded %s (%s).
+<a href="%s">%s</a> <hr> %s
+""" % (name, pathname, filename,
+       new_pathname, new_pathname,
+       top_k_str2(top_k))
+    return "You missed a field."
+
+def top_k_str(top_k):
+  [print(x) for x in top_k_str2(top_k, html=False)]
+
+def top_k_str2(top_k, html=True):
+  arr=[]
+  for node_id in top_k:
+    human_string = node_lookup.id_to_string(node_id)
+    score = predictions[node_id]
+    if html:
+      arr.append('<li>')
+    if score >= 0.80:
+      arr.append("I'm certain it's a %s." % human_string)
+    elif score >= 0.30:
+      arr.append("I think it's a %s." % human_string)
+    elif score >= 0.10:
+      arr.append("Maybe it's a %s." % human_string)
+    elif score >= 0.01:
+      arr.append("I'm guessing it's a %s." % human_string)
+    else:
+      arr.append("It's probably not a %s." % human_string)
+    arr.append('(score = %.5f)' % (score))
+  return arr
+  
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
