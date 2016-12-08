@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+% include('header.tpl', title='Page Title')
 <html lang="en">
   <head>
   <meta charset="utf-8">
@@ -101,3 +101,4 @@
     <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
   </body>
 </html>
+% include('footer.tpl')

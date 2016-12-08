@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+% include('header.tpl', title='Page Title')
 <html lang="en">
   <head>
   <meta charset="utf-8">
@@ -45,55 +45,19 @@
         <h3 class="text-muted">Project name</h3>
       </div>
 
-
       <div class="jumbotron">
         <h1>Jumbotron heading</h1>
-        <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam.
-
-	  <hr>
-
-{{data}}
-	  
-	</p>
-
-
-<form method="POST" action="/upload2" enctype="multipart/form-data">
-      <input type="hidden" name="name" value="default.jpg" />
-    <div class="form-group">
-      <label for="exampleInputFile">File input</label>
-
-      <input type="file" name="data" accept="video/*;capture=camcorder" value="sdfdsg" />
-      
-      <p class="help-block">Hit the button above and click to queue up the picture!</p>
-    </div>
-    <div class="form-group">
-      <p><input class="btn btn-lg btn-success" xhref="#" role="button" value="Send a Pic" type="submit" /></p>
-    </div>
-
-      </form>
+        <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
       </div>
 
       <div class="row marketing">
         <div class="col-lg-6">
-          <h4>Subheading</h4>
-          <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
 
-          <h4>Subheading</h4>
-          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum.</p>
+% for k in topk:
+          <h4>Venturing a guess...</h4>
+          <p>{{k}}</p>
+% end
 
-          <h4>Subheading</h4>
-          <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
-        </div>
-
-        <div class="col-lg-6">
-          <h4>Subheading</h4>
-          <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
-
-          <h4>Subheading</h4>
-          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum.</p>
-
-          <h4>Subheading</h4>
-          <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
         </div>
       </div>
 
@@ -103,9 +67,8 @@
 
     </div> <!-- /container -->
 
-
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
   </body>
 </html>
-UOLOAD
+% include('footer.tpl')

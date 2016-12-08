@@ -223,14 +223,14 @@ def do_upload():
   print("WORKING ON PREDICTING")
   top_k = run_inference_on_image(new_pathname)
   print("DONE PREDICTING")
+  topk = top_k_str2(top_k)
   msg = """Hello %s! You uploaded %s (%s).
 <a href="%s">%s</a> <hr> %s
 """ % (name, pathname, filename,
        new_pathname, new_pathname,
        top_k_str2(top_k))
   t = bottle.SimpleTemplate(name='upload')
-  return t.render(data=msg)
-
+  return t.render(data=msg,topk=topk)
 
 def top_k_str(top_k):
   [print(x) for x in top_k_str2(top_k, html=False)]
@@ -240,8 +240,6 @@ def top_k_str2(top_k, html=True):
   for node_id in top_k:
     human_string = node_lookup.id_to_string(node_id)
     score = predictions[node_id]
-    if html:
-      arr.append('<li>')
     if score >= 0.80:
       certainty_str = "I'm certain it's a %s."
     elif score >= 0.30:
@@ -252,8 +250,9 @@ def top_k_str2(top_k, html=True):
       certainty_str = "I'm guessing it's a %s."
     else:
       certainty_str = "It's probably not a %s."
-    arr.append(certainty_str % human_string)
-    arr.append('(score = %.5f)' % (score))
+    s = certainty_str % human_string
+    s += '(score = %.5f)' % (score)
+    arr.append( s )
   return arr
 
 if __name__ == '__main__':
